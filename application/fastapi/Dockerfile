@@ -6,7 +6,7 @@ COPY requirements.txt ./
 RUN pip install -r requirements.txt
 
 COPY . .
-COPY ../.env.example ./.env
+COPY ./.env.fastapi.example ./.env
 
 EXPOSE 8000
 
