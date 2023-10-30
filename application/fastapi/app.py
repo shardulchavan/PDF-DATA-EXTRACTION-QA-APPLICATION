@@ -3,6 +3,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from datetime import datetime, timedelta
 from db_utils import load_db_config, get_db_connection, close_db_connection, execute_query
 from auth_utils import hash_password, create_jwt_token, decode_jwt_token
+from openai_utils import embed_user_query
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import pathlib, os
@@ -27,6 +28,9 @@ class LoginRequestModel(BaseModel):
     username: str
     password: str
     
+class EmbedRequestModel(BaseModel):
+    query: str
+    
 security = HTTPBearer()
 
 def get_current_user(authorization: HTTPAuthorizationCredentials = Depends(security)):
@@ -49,6 +53,10 @@ def get_current_user(authorization: HTTPAuthorizationCredentials = Depends(secur
 async def get_secure_data():
     return {"message": "This is protected data"}
 
+@app.post("/embed")
+async def test(data: EmbedRequestModel = Body(...)):
+    return {"result" : embed_user_query(data.query)}
+    
 @app.post("/login", status_code=status.HTTP_200_OK)
 async def login(data: LoginRequestModel = Body(...)):
     conn = get_db_connection(DB_CONFIG)

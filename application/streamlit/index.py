@@ -58,12 +58,20 @@ def register_page():
     
 
 def qna_page():
-    st.title('Welcome to Sec-Gpt')
-    st.write("Please select a pdf from the below option")
+    st.title('Welcome to Sec-GPT')
     option = ["PDF 1", "PDF 2", "PDF 3", "PDF 4"]
-    selected_options = st.checkbox("",option)
+    selected_options = st.multiselect("Please select a pdf from the below option",options=option)
+    user_query = st.text_input('Ask your question!!')
+    if st.button('Submit'):
+        st.write("Wait")
+
+
+
+
+
 
 def main():
+    st.session_state['page'] = 'page1'    
     if 'page' not in st.session_state:
         st.session_state['page'] = 'login'    
     if st.session_state['page'] == 'login':

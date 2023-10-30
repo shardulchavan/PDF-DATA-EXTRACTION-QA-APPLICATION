@@ -8,7 +8,7 @@ def get_request(url, params=None, headers=None):
         return response
     except RequestException as e:
         print(f'An error occurred: {e}')
-        return response
+        return None
 
 def post_request(url, data=None, headers=None):
     try:
@@ -17,4 +17,4 @@ def post_request(url, data=None, headers=None):
         return response
     except RequestException as e:
         print(f'An error occurred: {e}')
-        return response
+        return None
