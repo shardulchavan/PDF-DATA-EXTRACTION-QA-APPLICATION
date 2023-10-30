@@ -12,6 +12,7 @@ from PyPDF2 import PdfReader
 import io
 import subprocess
 import pandas as pd
+import re
 
 
 #############################################################################################################
@@ -82,7 +83,7 @@ def extract_pdf_content_using_pypdf(row):
     return data
 
 
-def process_task():
+def process_task_pypdf():
     # read the dataframe from the CSV or Parquet file
     df = pd.read_parquet('/tmp/intermediate_df.parquet')
     final_pypdf_df = process_dataframe_Pypdf_links(df)
@@ -97,78 +98,94 @@ def process_dataframe_Pypdf_links(input_df):
     return pd.DataFrame(all_data)
 
 
+def extract_sections_new3(wiki_text: str) -> list:
+    if not wiki_text:
+        return []
+
+    # Find all headings in the format **HEADING**
+    headings = re.findall(r"\*\*[^*]+\*\*|### [^#]+ ###|## [^#]+ ##", wiki_text)
+    contents = re.split(r"\*\*[^*]+\*\*", wiki_text)[1:]
+    contents = [c.replace("{", "").replace("}", "").strip() for c in contents]  # Remove extraneous curly braces
+    assert len(headings) == len(contents)
+
+    # Create a list of (title, section_name, content, token_count) for each section
+    sections = [( h.replace('**', '').strip(), c, len(c.split())) for h, c in zip(headings, contents)]
+
+    return sections
+
+    
 # extraction using nougat
 def text_extraction_from_link_new(row, output_directory='./extracted_files'):
-    os.makedirs(output_directory, exist_ok=True)
-    
-    # Get the list of links
-    pdf_links = scrape_pdf_links()
+  os.makedirs(output_directory, exist_ok=True)
+  all_extracted_data=[]
+  # Get the list of links
+  # pdf_links = scrape_pdf_links()
 
-    # If you want to process only 5 links, take the first 5 links
-    # pdf_links = pdf_links[:5]
+  # If you want to process only 5 links, take the first 5 links
+  # pdf_links = pdf_links[:5]
 
-    all_extracted_data = []
+  file_link = row['PDF_Link']
+  print(f"Processing link: {file_link}")
+  
+  # Download the PDF and save to the output directory
+  file_response = requests.get(file_link)
+  file_response.raise_for_status()
+  
+  file_name = os.path.join(output_directory, file_link.split('/')[-1])
+  with open(file_name, 'wb') as f:
+      f.write(file_response.content)
 
-    for _, row in pdf_links_df.iterrows():
-        file_link = row['PDF_Link']
-        print(f"Processing link: {file_link}")
-        
-        # Download the PDF and save to the output directory
-        file_response = requests.get(file_link)
-        file_response.raise_for_status()
-        
-        file_name = os.path.join(output_directory, file_link.split('/')[-1])
-        with open(file_name, 'wb') as f:
-            f.write(file_response.content)
+  # Execute the nougat command
+  command = ["nougat", file_name, "-o", output_directory]
+  result = subprocess.run(command, capture_output=True, text=True)
 
-        # Execute the nougat command
-        command = ["nougat", file_name, "-o", output_directory]
-        result = subprocess.run(command, capture_output=True, text=True)
+  # Check if the command was successful
+  if result.returncode != 0:
+      print("Nougat processing failed for link:", file_link)
+      print(result.stderr)
+      # move to the next link
 
-        # Check if the command was successful
-        if result.returncode != 0:
-            print("Nougat processing failed for link:", file_link)
-            print(result.stderr)
-            continue  # move to the next link
+  # Print Nougat's stdout for debugging
+  print("Nougat stdout:", result.stdout)
 
-        # Print Nougat's stdout for debugging
-        print("Nougat stdout:", result.stdout)
+  # Check the filenames in the output directory to verify Nougat's output
+  print("Files in output directory:", os.listdir(output_directory))
+      # Load the extracted content from the output directory
+  extracted_file_path = os.path.join(output_directory, os.path.basename(file_name).replace('.pdf', '.mmd'))
 
-        # Check the filenames in the output directory to verify Nougat's output
-        print("Files in output directory:", os.listdir(output_directory))
-        # Load the extracted content from the output directory
-        extracted_file_path = os.path.join(output_directory, os.path.basename(file_name).replace('.pdf', '.mmd'))
-        
-        if not os.path.exists(extracted_file_path):
-            print(f"Expected extracted file {extracted_file_path} not found!")
-            continue  # move to the next link
+  if not os.path.exists(extracted_file_path):
+      print(f"Expected extracted file {extracted_file_path} not found!")
+      return []
 
-        with open(extracted_file_path, 'r') as f:
-            extracted_data = f.read()
+  with open(extracted_file_path, 'r') as f:
+      extracted_data = f.read()
 
-        all_extracted_data.append(extracted_data)
-        print(f"Data extracted for link: {file_link}")
+  # Split the extracted data into sections
+  sections = extract_sections_new3(extracted_data)
 
-    return all_extracted_data
+  # Prepare data for each section
+  data = []
+  total_tokens = 0
+  for section_num, (heading, content,tokens) in enumerate(sections, start=1):
+      total_tokens += tokens
+      data.append({
+          'File_Name': row['File_Name'],
+          'SEC_Number': row['SEC_Number'],
+          'Topic': row['Topic'],
+          'PDF_Link': file_link,
+          'Page_No': section_num,
+          'Page_Content': heading + "\n" + content,
+          'Number_of_Words': tokens,
+          'Total_Tokens_in_PDF': total_tokens
+      })
 
-    # Load the extracted content from the output directory
-    extracted_file_path = os.path.join(output_directory, os.path.basename(file_name).replace('.pdf', '.txt'))
-    
-    if not os.path.exists(extracted_file_path):
-        print(f"Expected extracted file {extracted_file_path} not found!")
-        return None
-
-    with open(extracted_file_path, 'r') as f:
-        extracted_data = f.read()
-
-    print(extracted_data)
-    return extracted_data
-
+  return data
 # to process pdf using nougat
 def process_dataframe_Nougat_links(input_df):
     all_data = []
+    input_df = input_df[2:3]
     for _, row in input_df.iterrows():
-        all_data.extend(extract_pdf_content_using_pypdf(row))
+        all_data.extend(text_extraction_from_link_new(row))
     return pd.DataFrame(all_data)
 
 
@@ -180,7 +197,7 @@ def scrape_task():
 
     
 
-def process_nougat_task():
+def process_task_nougat():
     # read the dataframe from the CSV or Parquet file
     df = pd.read_parquet('/tmp/intermediate_df.parquet')
     final_nougat_df = process_dataframe_Nougat_links(df)
@@ -213,16 +230,17 @@ with dag:
     )
 
     t2 = PythonOperator(
-        task_id='process_pdf_links_task',
-        python_callable=process_task,
+        task_id='process_pdf_links_task_pypdf',
+        python_callable=process_task_pypdf,
         dag=dag
     )
 
-
-    extarct_pdf_nougat = PythonOperator(
-        task_id='extract_pdf_nougat',
-        python_callable=text_extraction_from_link_new
+    t3 = PythonOperator(
+        task_id='process_pdf_links_task_nougat',
+        python_callable=process_task_nougat,
+        dag=dag
     )
+
 
     bye_world = BashOperator(
     task_id="bye_world",
@@ -230,49 +248,4 @@ with dag:
     )
 
     # Flow
-    t1 >> t2 >> extarct_pdf_nougat >> bye_world
-
-
-
-
-
-
-# def text_extraction_from_link_new(file_link):
-#     file_response = requests.get(file_link)
-#     file_response.raise_for_status()  # Check for any HTTP errors.
-#     file_content = file_response.content
-#     reader = PdfReader(io.BytesIO(file_content))
-#     metadata = reader.metadata  # Using the new 'metadata' attribute
-#     title = metadata.get('/Title', None)  # Extract the title from the metadata dictionary
-#     print(title)
-#     number_of_pages  = len(reader.pages)
-#     extracted_data=""
-#     num_words = 0
-#     for page_num in range(1, number_of_pages+1):
-#         params = {
-#             'start': page_num,
-#             'stop': page_num
-#         }
-
-#         nougat_response = requests.post(nougat_api_url+"/predict", headers=headers, files=files, params=params)
-#         if nougat_response.status_code == 200:
-#             extracted_data = title + extracted_data + nougat_response.text
-#             num_words += len(nougat_response.text.split())
-#             break
-#         else:
-#             print("Request failed with status code:" + str(nougat_response.status_code))
-#             print(nougat_response.text)
-#             request_counter += 1
-#     if request_counter == 3:
-#         return "Error in nougat api"
-#     print(extracted_data)
-#     return extracted_data
-
-
-# def setup_ngrok_and_variable():
-#     conf.get_default().auth_token = "2X2iUKS8w5UoLeLQ4R4Rw1Mm27M_3yi3rkFDWqy1gdtufgLdV"  # Consider securing your auth_token
-#     port = 8503
-#     public_url = ngrok.connect(port).public_url
-#     print(f"Your ngrok link is: '{public_url}'")
-#     return public_url
-#     # Variable.set("nougat_api_url", public_url)
+    t1 >> t3 >> bye_world
