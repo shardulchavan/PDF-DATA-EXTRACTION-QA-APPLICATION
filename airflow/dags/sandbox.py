@@ -13,6 +13,8 @@ import io
 import subprocess
 import pandas as pd
 import re
+import torch
+from transformers import LongformerTokenizer, LongformerModel
 
 
 #############################################################################################################
@@ -145,10 +147,8 @@ def text_extraction_from_link_new(row, output_directory='./extracted_files'):
       print(result.stderr)
       # move to the next link
 
-  # Print Nougat's stdout for debugging
   print("Nougat stdout:", result.stdout)
 
-  # Check the filenames in the output directory to verify Nougat's output
   print("Files in output directory:", os.listdir(output_directory))
       # Load the extracted content from the output directory
   extracted_file_path = os.path.join(output_directory, os.path.basename(file_name).replace('.pdf', '.mmd'))
@@ -203,7 +203,55 @@ def process_task_nougat():
     final_nougat_df = process_dataframe_Nougat_links(df)
     print(final_nougat_df)
     final_nougat_df.to_csv('final_output.csv', index=False)
-    # Optionally, you can save the final_df to another location or perform other tasks
+
+
+# function to create embeddings
+def get_embedding(text, model, tokenizer, device):
+    tokens = tokenizer.encode(text, return_tensors='pt', truncation=True, max_length=4096).to(device)
+    
+    if len(tokens[0]) > 4096:
+        print("Warning: Text is too long, truncating...")
+        
+    with torch.no_grad():
+        outputs = model(tokens)
+        # Return the average of the embeddings and its dimension
+        return outputs.last_hidden_state.mean(dim=1).cpu().numpy(), outputs.last_hidden_state.shape[-1]
+
+def generate_embeddings():
+    # read the dataframe from the CSV or Parquet file
+    df = pd.read_csv('final_output.csv')
+    # Initialize model and tokenizer
+    model_name = "allenai/longformer-base-4096"
+    model = LongformerModel.from_pretrained(model_name)
+    tokenizer = LongformerTokenizer.from_pretrained(model_name)
+
+    # Set device
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = model.to(device)
+    model.eval()
+
+    # Batch processing
+    batch_size = 2
+    embeddings = []
+    dimensions = []
+
+    for i in range(0, len(df), batch_size):
+        batch_texts = df['Page_Content'].iloc[i:i+batch_size].tolist()
+        batch_data = [get_embedding(text, model, tokenizer, device) for text in batch_texts]
+
+        for emb, dim in batch_data:
+            embeddings.append(emb)
+            dimensions.append(dim)
+
+    df['Embeddings'] = embeddings
+    df['Embedding_Dimension'] = dimensions
+
+    # Save to CSV
+    df.to_csv('output_with_embeddings1.csv', index=False)
+    return df
+
+
+
 
 #############################################################################################################
 
@@ -234,13 +282,18 @@ with dag:
         python_callable=process_task_pypdf,
         dag=dag
     )
-
+    
     t3 = PythonOperator(
         task_id='process_pdf_links_task_nougat',
         python_callable=process_task_nougat,
         dag=dag
     )
 
+    t4 = PythonOperator(
+        task_id='generate_embeddings',
+        python_callable=generate_embeddings,
+        dag=dag
+    )
 
     bye_world = BashOperator(
     task_id="bye_world",
@@ -248,4 +301,4 @@ with dag:
     )
 
     # Flow
-    t1 >> t3 >> bye_world
+    t1 >> t2 >> t4 >> bye_world
