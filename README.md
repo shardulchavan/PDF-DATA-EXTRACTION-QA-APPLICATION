@@ -33,7 +33,7 @@ Python | Streamlit | Google Collab | Nougat | Google VM | Fast API | Airflow | P
 
 ![image](https://github.com/BigDataIA-Fall2023-Team2/Assignment3/assets/131703516/91ce1f08-b742-4494-a88e-cdd016570cc3)
 
-![image](https://github.com/BigDataIA-Fall2023-Team2/Assignment3/assets/131703516/f9378f5d-821b-4c43-91d3-9769dc85a581)
+![image](https://github.com/BigDataIA-Fall2023-Team2/Assignment3/assets/131703516/1c88bc1d-47cf-4650-b776-a54c4093468c)
 
 ### Project Flow
 
