@@ -1,0 +1,9 @@
+base_url: "https://www.sec.gov"
+
+file_urls:
+  - https://www.sec.gov/files/form1-a.pdf
+  - https://www.sec.gov/files/form1-e.pdf
+
+processing_option: "nougat"  # or "PyPdf"
+credentials:
+  path: "/path/to/credentials.yaml"
