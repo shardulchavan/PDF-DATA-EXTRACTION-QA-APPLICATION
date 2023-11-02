@@ -54,13 +54,11 @@ All the microservices has been containerized and hosted on cloud/publicly availa
 ### Contributions
 
 | Name                            | Contribution                               |  
-| ------------------------------- | -------------------------------------------|
-| Shardul Chavan                  | Part 1 - Airflow, Embeddings               | 
-| Chinmay Gandi                   | Part 2 - Aiflow, Pinecone DB, MS-SQL       |
-| Chinmay Gandi, Dhawal Negi      | User login/registration, JWT, FAST API     | 
-| Dhawal Negi                     | Airflow deployment to google VM,           |
-|                                 | Integration of part1, part2, part3, OpenAI,| 
-|                                 | Fast API                                   |
+| ------------------------------- | ---------------------------------------------------------------------|
+| Shardul Chavan                  | Part 1 - Airflow, Embeddings                                         | 
+| Chinmay Gandi                   | Part 2 - Aiflow, Pinecone DB, MS-SQL                                 |
+| Chinmay Gandi, Dhawal Negi      | User login/registration, JWT, FAST API                               | 
+| Dhawal Negi                     | Airflow deployment to google VM, Integration of part1, part2, part3  |              
 
 ### Additional Notes
 WE ATTEST THAT WE HAVEN’T USED ANY OTHER STUDENTS’ WORK IN OUR ASSIGNMENT AND ABIDE BY THE POLICIES LISTED IN THE STUDENT HANDBOOK. 
