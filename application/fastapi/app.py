@@ -51,10 +51,6 @@ def get_current_user(authorization: HTTPAuthorizationCredentials = Depends(secur
             headers={"WWW-Authenticate": "Bearer"},
         )
     return user
-
-@app.get("/secure-data", dependencies=[Depends(get_current_user)])
-async def get_secure_data():
-    return {"message": "This is protected data"}
     
 @app.post("/login", status_code=status.HTTP_200_OK)
 async def login(data: LoginRequestModel = Body(...)):
@@ -75,8 +71,6 @@ async def login(data: LoginRequestModel = Body(...)):
         "validity" : expiration
     }
     
-
-
 @app.post("/register", status_code=status.HTTP_201_CREATED)
 async def register_user(data: RegisterRequestModel = Body(...)):
     conn = get_sql_db_connection(DB_CONFIG)
@@ -109,14 +103,17 @@ async def answer_user_query(data: ChatRequestModel = Body(...)):
         query_filter_conditions["topics"] = {"$in": data.topics}
     user_query_embedding_vector = embed_user_query(user_query=user_query)
     simlarity_query_result = query_piencone_vectors(user_query_embedding_vector, 3, query_filter_conditions)
-    
+    ids = tuple(match['id'] for match in simlarity_query_result['matches'])
     conn = get_sql_db_connection(DB_CONFIG)
     schema = DB_CONFIG['schema']
-    id_placeholders = ', '.join(['%s'] * len(simlarity_query_result))
-    sql_get_pdf_chunks = f"SELECT chunk FROM [{schema}].[chunk_table] WHERE Id IN ({id_placeholders})"
-    # pdf_chunks = execute_sql_query(conn, sql_get_pdf_chunks, simlarity_query_result, fetch="ALL")
-    pdf_chunks = ["Hello", "Heya"]
+    id_placeholders = ', '.join(['%s'] * len(ids))
+    sql_get_pdf_chunks = f"SELECT Chunk_Content FROM [{schema}].[bigdataassignment3_chunkstorage] WHERE ID IN ({id_placeholders})"
+    pdf_chunks = execute_sql_query(conn, sql_get_pdf_chunks, ids, fetch="ALL")
+    print(pdf_chunks)
     open_ai_answer = ask_openai(pdf_chunks, user_query)
     return {
         "response" : open_ai_answer
     }
+    
+# @app.get("/get_pdf", status_code=status.HTTP_200_OK, dependencies=[Depends(get_current_user)])
+# async def get

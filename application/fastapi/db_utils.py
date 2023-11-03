@@ -35,6 +35,7 @@ def close_sql_db_connection(conn):
         )
         
 def execute_sql_query(conn, query, params, fetch = False):
+    print(query)
     cursor = conn.cursor()
     result = None
     try:
@@ -59,17 +60,17 @@ def execute_sql_query(conn, query, params, fetch = False):
 def load_pinecone_db_config():
     return {
         "api_key": os.getenv('PINECONE_API_KEY'),
+        "environment": os.getenv('PINECONE_ENVIRONMENT'),
         "index": os.getenv('PINECONE_INDEX')
     }
     
 def query_piencone_vectors(query, top_k, filter_condition = None):
-    # config = load_pinecone_db_config
-    # pinecone.init(api_key=config['api_key'])
-    # index = pinecone.Index(index_name=config['PINECONE_INDEX'])
-    # if filter_condition is None:
-    #     results = index.query(queries=query, top_k=top_k, include=["id"])
-    # else:
-    #     results = index.query(queries=query, top_k=top_k, filter=filter_condition, include=["id"])
-    # pinecone.deinit()  
-    # return results
-    return [1,2,3]
+    config = load_pinecone_db_config()
+    pinecone.init(api_key=config["api_key"], environment=config["environment"])
+    index = pinecone.Index(index_name=config['index'])
+    query=query.tolist()
+    if filter_condition is None:
+        results = index.query(vector=query, top_k=top_k, include=["id"])
+    else:
+        results = index.query(vector=query, top_k=top_k, filter=filter_condition, include=["id"])
+    return results

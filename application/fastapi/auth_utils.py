@@ -16,7 +16,7 @@ def hash_password(password: str) -> str:
 
 
 def create_jwt_token(data: dict):
-    expiration = datetime.utcnow() + timedelta(minutes=1)
+    expiration = datetime.utcnow() + timedelta(minutes=5)
     token_payload = {"exp": expiration, **data}
     token = jwt.encode(token_payload, SECRET_KEY, algorithm="HS256")
     return token, expiration
