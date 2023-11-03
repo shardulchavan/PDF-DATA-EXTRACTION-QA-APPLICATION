@@ -8,6 +8,6 @@ file_urls:
   - https://www.sec.gov/files/formabs-15g.pdf
 
 
-processing_option: "pypdf"  # or "PyPdf"
+processing_option: "nougat"  # or "PyPdf"
 credentials:
   path: "/path/to/credentials.yaml"

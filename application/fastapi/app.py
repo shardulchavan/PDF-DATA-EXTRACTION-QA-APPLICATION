@@ -95,9 +95,9 @@ async def answer_user_query(data: ChatRequestModel = Body(...)):
     user_query = data.query
     query_filter_conditions = {}
     if len(data.file_name) > 0:
-        query_filter_conditions["file_name"] = {"$in": data.file_name}
+        query_filter_conditions["File_Name"] = {"$in": data.file_name}
     if len(data.sec_no) > 0:
-        query_filter_conditions["sec_no"] = {"$in": data.sec_no}
+        query_filter_conditions["SEC_Number"] = {"$in": data.sec_no}
     user_query_embedding_vector = embed_user_query(user_query=user_query)
     simlarity_query_result = query_piencone_vectors(user_query_embedding_vector, 3, query_filter_conditions)
     ids = tuple(match['id'] for match in simlarity_query_result['matches'])
