@@ -22,7 +22,7 @@ Airflow on Google VM - http://34.118.251.190:8080/
 
 Google Codelab link - https://codelabs-preview.appspot.com/?file_id=19sYQgyLOGj7-QpsYE_gV8CAFpsW98opf_Jok9yPcE6c#0
 
-Project Demo - 
+Project Demo - https://www.youtube.com/watch?v=RPDVQkMc6Wo
 
 ### Tech Stack
 Python | Streamlit | Google Collab | Nougat | Google VM | Fast API | Airflow | PyPDF | Docker | MS-SQL sever | | Pinecone
