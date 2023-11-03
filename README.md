@@ -29,7 +29,7 @@ Python | Streamlit | Google Collab | Nougat | Google VM | Fast API | Airflow | P
 
 ### Architecture diagram ###
 
-![image](Assignment_3_architecture.png)
+![image](Architecture_diagram.png)
 
 ### Project Flow
 
