@@ -50,7 +50,122 @@ All the microservices has been containerized and hosted on cloud/publicly availa
 ### Repository Structure
 
 
-
+### Steps to replicate
+Steps to replicate
+ 
+1- clone the the github repository in your local machine.
+ 
+git clone https://github.com/BigDataIA-Fall2023-Team2/Assignment3.git
+cd Assignment3
+ 
+2- Migrate to airflow directory and modify the config as needed
+ 
+cd airflow
+ 
+vi ./config/pipeline1_config.yaml
+ 
+3- Run the airflow in docker using the docker-compose.yaml
+ 
+docker compose up -d
+ 
+Wait for all the containers to become healthy.
+Access the airflow web-ui on http://localhost:8080
+ 
+4- login to the panel. naviagte to admin->varibles, and add the variables list
+ 
+pinecone_api: Your Pinecone API"
+environment: Your Pinecone Environment"
+database: Your SQL database name"
+username: USERNAME
+password: PASSWORD
+table: bigdataassignment3_chunkstorage
+server: Your SQL database server
+df_var: ./data/final_embeddings.csv
+operation: upsert (or delete, any 1)
+ 
+5- Create the required database tables on your sql
+ 
+CREATE TABLE [dbo].[bigdataassignment3_chunkstorage](
+    [ID] [int] IDENTITY(1,1) NOT NULL,
+    [File_Name] [nvarchar](max) NULL,
+    [SEC_Number] [nvarchar](max) NULL,
+    [Topic] [nvarchar](max) NULL,
+    [PDF_Link] [nvarchar](max) NULL,
+    [Chunk_Content] [nvarchar](max) NULL,
+    [combined_columns] [nvarchar](500) NULL,
+    [Chunk_No] [nvarchar](max) NULL,
+PRIMARY KEY CLUSTERED
+(
+    [ID] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY],
+UNIQUE NONCLUSTERED
+(
+    [combined_columns] ASC
+)WITH (STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+ 
+CREATE TABLE [dbo].[application_user](
+    [username] [nvarchar](max) NULL,
+    [password] [nvarchar](max) NULL,
+    [emailid] [nvarchar](max) NULL,
+    [active] [nvarchar](max) NULL,
+    [Fullname] [nvarchar](max) NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+ 
+6- Navigate to the dags and execute pipeline1 and pipeline2 in squential order.
+ 
+7- Migrate to the fastapi directory under application
+ 
+cd ../application/fastapi
+ 
+8- Modify the env.fastapi.example to add the required variable and secrets
+ 
+Fastapi--
+PRIVATE_KEY =""
+SQL_DATABASE_SERVER = ""
+SQL_DATABASE_NAME = ""
+SQL_DATABASE_USERNAME = ""
+SQL_DATABASE_PASSWORD = ""
+SQL_DATABASE_SCHEMA = ""
+ 
+PINECONE_API_KEY = ""
+PINECONE_INDEX = ""
+PINECONE_ENVIRONMENT =""
+ 
+EMBEDDING_MODEL = "allenai/longformer-base-4096"
+OPENAI_API_KEY = ""
+GPT_MODEL = "gpt-3.5-turbo"
+ 
+9- Build the docker image using the Dockerfile present in the directory
+ 
+docker build -t fastapi
+ 
+10 - Run the docler imaage and expose port 8000
+ 
+docker run -p 8000:8000 fastapi
+Your Fast api will be running on http://localhost:8000, access the documentation on http://localhost:8000/docs
+ 
+11- Migrate to the streamlit directory under application
+ 
+cd ../streamlit
+ 
+12- Modify the .env.streamlit.example and add your fastapi url
+ 
+FASTAPI_HOST = "http://localhost:8000"
+ 
+13- create the virtual enviorment and install the dependencies
+ 
+python3 -m venv .streamlit
+source ./.streamlit/bin/activate
+pip3 -r requirements.txt
+ 
+14- Run the streamlit application
+ 
+streamlit run index.py
+ 
+Your application shoudl be running and will be available on http://localhost:8001
 ### Contributions
 
 | Name                            | Contribution                               |  
