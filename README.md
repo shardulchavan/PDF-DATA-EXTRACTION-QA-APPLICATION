@@ -12,28 +12,24 @@ This project builds upon the foundation laid by Project 1(https://github.com/Big
 
 ### Application and Documentation Link
 
-App link - 
+App link - https://t2a3p1.streamlit.app/
 
-Fast API hosted on Google VM - 
+Fast API hosted on Google VM - http://34.118.251.190:8000/docs
+
+Airflow on Google VM - http://34.118.251.190:8080/
 
 ### Project Resources
 
 Google Codelab link - 
 
-Google Collab Notebook link -
-
 Project Demo - 
 
 ### Tech Stack
-Python | Streamlit | Google Collab | Nougat | Google VM | Fast API | Airflow | PyPDF | Docker | MS-SQL sever
+Python | Streamlit | Google Collab | Nougat | Google VM | Fast API | Airflow | PyPDF | Docker | MS-SQL sever | | Pinecone
 
 ### Architecture diagram ###
 
-![image](https://github.com/BigDataIA-Fall2023-Team2/Assignment3/assets/131703516/1941d1e3-98bc-4183-b14b-52eb96864f47)
-
-![image](https://github.com/BigDataIA-Fall2023-Team2/Assignment3/assets/131703516/91ce1f08-b742-4494-a88e-cdd016570cc3)
-
-![image](https://github.com/BigDataIA-Fall2023-Team2/Assignment3/assets/131703516/1c88bc1d-47cf-4650-b776-a54c4093468c)
+![image](Assignment_3_architecture.png)
 
 ### Project Flow
 
