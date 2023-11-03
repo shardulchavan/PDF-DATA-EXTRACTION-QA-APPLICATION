@@ -154,6 +154,8 @@ Your Fast api will be running on http://localhost:8000, access the documentation
 `cd ../streamlit`
  
 12- Modify the .env.streamlit.example and add your fastapi url
+
+ `cp .env.streamlit.example .env`
  
 `FASTAPI_HOST = "http://localhost:8000"`
  
