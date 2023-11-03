@@ -32,7 +32,6 @@ class ChatRequestModel(BaseModel):
     query: str
     file_name: list
     sec_no: list
-    topics: list
     
 security = HTTPBearer()
 
@@ -99,8 +98,6 @@ async def answer_user_query(data: ChatRequestModel = Body(...)):
         query_filter_conditions["file_name"] = {"$in": data.file_name}
     if len(data.sec_no) > 0:
         query_filter_conditions["sec_no"] = {"$in": data.sec_no}
-    if len(data.topics) > 0:
-        query_filter_conditions["topics"] = {"$in": data.topics}
     user_query_embedding_vector = embed_user_query(user_query=user_query)
     simlarity_query_result = query_piencone_vectors(user_query_embedding_vector, 3, query_filter_conditions)
     ids = tuple(match['id'] for match in simlarity_query_result['matches'])
@@ -115,5 +112,15 @@ async def answer_user_query(data: ChatRequestModel = Body(...)):
         "response" : open_ai_answer
     }
     
-# @app.get("/get_pdf", status_code=status.HTTP_200_OK, dependencies=[Depends(get_current_user)])
-# async def get
+@app.get("/get_all_filter", status_code=status.HTTP_200_OK, dependencies=[Depends(get_current_user)])
+async def get_all_filter():
+    conn = get_sql_db_connection(DB_CONFIG)
+    schema = DB_CONFIG['schema']
+    sql_get_file_names = f"SELECT distinct File_Name FROM [{schema}].[bigdataassignment3_chunkstorage]"
+    sql_get_sec_no = f"SELECT distinct SEC_Number FROM [{schema}].[bigdataassignment3_chunkstorage]"
+    file_names = execute_sql_query(conn, sql_get_file_names, None, fetch="ALL")
+    sec_no = execute_sql_query(conn, sql_get_sec_no, None, fetch="ALL")
+    return{
+        "file_names":file_names,
+        "sec_no":sec_no
+    }

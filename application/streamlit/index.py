@@ -64,12 +64,17 @@ def landing_page():
     if 'messages' in st.session_state:
         del st.session_state['messages']
     st.title('Welcome to Sec-GPT')
-    file_filter_option = ["PDF 1", "PDF 2", "PDF 3", "PDF 4"]
+    auth_token =  "Bearer "+ st.session_state['token']
+    headers = {
+        "accept": "application/json",
+        "Authorization": auth_token,
+        "Content-Type": "application/json" \
+    }
+    filters=get_request(FASTAPI_HOST+'/get_all_filter',headers=headers,params=None)
+    file_filter_option = [item for sublist in filters.json()['file_names'] for item in sublist]
     st.session_state['file_filter'] = st.multiselect("Please select a pdf from the below option",options=file_filter_option)
-    sec_no_filter_option = ["PDF 1", "PDF 2", "PDF 3", "PDF 4"]
+    sec_no_filter_option = [item for sublist in filters.json()['sec_no'] for item in sublist]
     st.session_state['sec_no_filter'] = st.multiselect("Apply sec no filter",options=sec_no_filter_option)
-    topics_filter_option = ["PDF 1", "PDF 2", "PDF 3", "PDF 4"]
-    st.session_state['topics_filter'] = st.multiselect("Apply topics filter",options=topics_filter_option)
     if st.button('Submit'):
         st.session_state['page'] = 'chat' 
         st.rerun()    
@@ -94,7 +99,6 @@ def chat_page():
             "query": user_query,
             "file_name": st.session_state['file_filter'],
             "sec_no": st.session_state['sec_no_filter'],
-            "topics": st.session_state['topics_filter']
         }
         auth_token =  "Bearer "+ st.session_state['token']
         headers = {
@@ -107,7 +111,6 @@ def chat_page():
             del st.session_state['token']
             del st.session_state['file_filter']
             del st.session_state['sec_no_filter']
-            del st.session_state['topics_filter']
             st.session_state['page'] = 'login' 
             st.rerun() 
         st.session_state.messages.append({"role": "assistant", "content": openai_response.json()['response']})
@@ -116,7 +119,6 @@ def chat_page():
     if st.button("Return"):
         del st.session_state['file_filter']
         del st.session_state['sec_no_filter']
-        del st.session_state['topics_filter']
         st.session_state['page'] = 'landing' 
         st.rerun()
     if st.button('LogOut'):
