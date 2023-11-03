@@ -20,7 +20,7 @@ Airflow on Google VM - http://34.118.251.190:8080/
 
 ### Project Resources
 
-Google Codelab link - 
+Google Codelab link - https://codelabs-preview.appspot.com/?file_id=19sYQgyLOGj7-QpsYE_gV8CAFpsW98opf_Jok9yPcE6c#0
 
 Project Demo - 
 
@@ -45,6 +45,7 @@ All the microservices has been containerized and hosted on cloud/publicly availa
 
 ### Repository Structure
 
+![image](directory_structure.png)
 
 ### Steps to replicate
 Steps to replicate
@@ -171,14 +172,15 @@ pip3 -r requirements.txt
 `streamlit run index.py`
  
 Your application shoudl be running and will be available on http://localhost:8001
+
 ### Contributions
 
-| Name                            | Contribution                               |  
-| ------------------------------- | ---------------------------------------------------------------------|
-| Shardul Chavan                  | Part 1 - Airflow, Embeddings                                         | 
-| Chinmay Gandi                   | Part 2 - Aiflow, Pinecone DB, MS-SQL                                 |
-| Chinmay Gandi, Dhawal Negi      | User login/registration, JWT, FAST API                               | 
-| Dhawal Negi                     | Airflow deployment to google VM, Integration of part1, part2, part3  |              
+| Name                            | Contribution                                                                 |  
+| ------------------------------- | -----------------------------------------------------------------------------|
+| Shardul Chavan                  | Part 1 - Airflow, Embeddings, Docker                                         | 
+| Chinmay Gandi                   | Part 2 - Aiflow, Pinecone DB, MS-SQL                                         |
+| Chinmay Gandi, Dhawal Negi      | User login/registration, JWT, FAST API                                       | 
+| Dhawal Negi                     | Airflow deployment to google VM, Integration of part1, part2, part3, Docker  |              
 
 ### Additional Notes
 WE ATTEST THAT WE HAVEN’T USED ANY OTHER STUDENTS’ WORK IN OUR ASSIGNMENT AND ABIDE BY THE POLICIES LISTED IN THE STUDENT HANDBOOK. 
