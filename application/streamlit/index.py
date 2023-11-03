@@ -68,14 +68,13 @@ def landing_page():
     headers = {
         "accept": "application/json",
         "Authorization": auth_token,
-        "Content-Type": "application/json" \
+        "Content-Type": "application/json" 
     }
     filters=get_request(FASTAPI_HOST+'/get_all_filter',headers=headers,params=None)
     if filters is None:
         del st.session_state['token']
         st.session_state['page'] = 'login' 
         st.rerun() 
-        
     file_filter_option = [item for sublist in filters.json()['file_names'] for item in sublist]
     st.session_state['file_filter'] = st.multiselect("Please select a pdf from the below option",options=file_filter_option)
     sec_no_filter_option = [item for sublist in filters.json()['sec_no'] for item in sublist]
