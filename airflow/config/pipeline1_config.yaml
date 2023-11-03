@@ -3,7 +3,11 @@ base_url: "https://www.sec.gov"
 file_urls:
   - https://www.sec.gov/files/form1-a.pdf
   - https://www.sec.gov/files/form1-e.pdf
+  - https://www.sec.gov/files/form1-k.pdf
+  - https://www.sec.gov/files/form4data0.pdf
+  - https://www.sec.gov/files/formabs-15g.pdf
 
-processing_option: "nougat"  # or "PyPdf"
+
+processing_option: "pypdf"  # or "PyPdf"
 credentials:
   path: "/path/to/credentials.yaml"

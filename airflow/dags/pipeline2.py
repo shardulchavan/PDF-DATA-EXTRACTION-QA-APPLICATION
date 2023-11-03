@@ -109,10 +109,10 @@ def upsert_to_pinecone(ti):
             embedding_floats = [float(value) for value in embedding_values]
 
             metadata = {
-                "FileName": row[1],
+                "File_Name": row[1],
                 "SEC_Number": row[2]
             } 
-            index.upsert(vectors=[{"id": str(row[0]), "values": embedding_floats}], metadata=metadata)  # Adjust as per your metadata
+            index.upsert(vectors=[{"id": str(row[0]), "values": embedding_floats, "metadata":metadata}])  # Adjust as per your metadata
             upserted_count += 1
     conn.close()
     print(f"Upserted {upserted_count} records to Pinecone index.")
