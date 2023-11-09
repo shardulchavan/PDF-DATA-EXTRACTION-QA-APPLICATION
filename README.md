@@ -178,7 +178,7 @@ Your application shoudl be running and will be available on http://localhost:800
 | Name                            | Contribution                                                                 |  
 | ------------------------------- | -----------------------------------------------------------------------------|
 | Shardul Chavan                  | Part 1 - Airflow, Embeddings, Docker                                         | 
-| Chinmay Gandi                   | Part 2 - Aiflow, Pinecone DB, MS-SQL                                         |
+| Chinmay Gandi, Shardul Chavan   | Part 2 - Aiflow, Pinecone DB, MS-SQL                                         |
 | Chinmay Gandi, Dhawal Negi      | User login/registration, JWT, FAST API                                       | 
 | Dhawal Negi                     | Airflow deployment to google VM, Integration of part1, part2, part3, Docker  |              
 
